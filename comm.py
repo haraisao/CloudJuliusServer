@@ -50,8 +50,6 @@ ch.setFormatter(logging.Formatter(CONS_FORMAT))
 
 logger.addHandler(ch)
 
-
-
 #
 # Raw Socket Adaptor
 #
@@ -446,7 +444,7 @@ class SocketServer(SocketPort):
       self.logger.error( "Error: invalid index in getWS()")
       return None 
    
-#
+###########
 #  Service Adaptor
 #
 class SocketService(SocketPort):
@@ -480,7 +478,7 @@ class SocketService(SocketPort):
     self.mainloop=False
     return
 
-#
+###########
 #  Commands (Comet)
 #
 CloseCodeNum={
@@ -510,7 +508,7 @@ Opcode={
      'PongFrame.':10,
 }
 
-#
+###########
 #  Foundmental reader class 
 #
 class CommReader:
@@ -716,6 +714,8 @@ class HttpReader(CommReader):
     cmd = header["Http-Command"]
     fname = header["Http-FileName"].split('?')
 
+    #
+    # GET
     if cmd == "GET":
       if 'Connection' in header and header['Connection'] == "Upgrade" and 'Upgrade' in header:
         if header['Upgrade'] == "websocket":
@@ -738,10 +738,13 @@ class HttpReader(CommReader):
 
         self.sendResponse(response)
 
+    #
+    #  POST
     elif cmd == "POST":
       if fname[0] in self.commands  :
         self.commands[fname[0]](data)
 
+      # Julius Server
       elif fname[0] == "/asr" :
         try:
           if 'audio/l16' in header['Content-Type'] :
@@ -755,11 +758,15 @@ class HttpReader(CommReader):
         except:
           response = self.command.response400()
           self.sendResponse(response)
+      #
+      # 
       else:
 	  contents = "Hello, No such action defined"
           response = self.command.response200("text/plain", contents)
           self.sendResponse(response)
 
+    #
+    # Other
     else:
       response = self.command.response400()
       self.sendResponse(response)
@@ -869,7 +876,7 @@ class HttpReader(CommReader):
 
 
   #
-  #
+  #  for terminate ASR
   def terminate(self):
     try:
       self.asr.terminate()
@@ -882,7 +889,7 @@ class HttpReader(CommReader):
 #
 class CommCommand:
   #
-  #  Costrutor
+  #  Construtor
   #
   def __init__(self, buff, rdr=None):
     self._buffer=buff
@@ -1433,7 +1440,7 @@ class WebSocketCommand(CommCommand):
     print msg
 
 #############################################
-#
+#   SIGVerse
 #
 class SigverseCommand(CommCommand):
   #
@@ -1514,7 +1521,7 @@ class ROS_BridgeManager:
 
     return self.op
 
-#
+###########
 #  for ROS Bridge
 class RosSubscriber:
   def __init__(self, topic, type, comm):
@@ -1531,6 +1538,8 @@ class RosSubscriber:
     print "Sub:ROSMsg"
     print data
 
+##########
+#
 class RosPublisher:
   def __init__(self, topic, type, comm):
     self.comm = comm
@@ -1546,7 +1555,8 @@ class RosPublisher:
     print "Pub:ROSMsg"
     print data
 
-
+##########
+#
 class RosService:
   def __init__(self, topic, type, comm):
     self.comm = comm
@@ -1681,8 +1691,7 @@ def parseData(data):
       pass
   return res
 
-#
-#
+###########
 #
 class syncQueue:
   def __init__(self):
@@ -1702,6 +1711,8 @@ class syncQueue:
 
       return self.queue.pop(0)
 
+##########
+#
 class seqManager():
   def __init__(self, n=10):
     self.logger = logger
@@ -1746,6 +1757,9 @@ class seqManager():
     self.release(val)
     return res
 
+#
+#  Log
+#
 def getLogger(m_name, fname="", level=logging.INFO):
   _logger=logging.getLogger(m_name)
   _logger.setLevel(level)
@@ -1760,10 +1774,16 @@ def getLogger(m_name, fname="", level=logging.INFO):
   _logger.addHandler(log_handler)
   return _logger
 
+#
+#
+#
 def setLoggerLevel(level=logging.INFO):
   _logger=logging.getLogger(__name__)
   _logger.setLevel(level)
 
+#
+#  Daemonize
+#
 def daemonize(fname="comm.log", log_level=logging.INFO):
   __logger = getLogger(__name__, fname)
   __logger.setLevel(log_level)
@@ -1812,11 +1832,10 @@ def create_httpd(num=80, top="html", command=WebSocketCommand, host="", ssl=Fals
   reader = HttpReader(None, top)
   #reader.WSCommand = command(reader,None)
   return SocketServer(reader, "Web", host, num, ssl)
-#  return SocketServer(reader, "Web", socket.gethostname(), num)
 
 
 ######################################
-#  HTTP Server
+#  Julius Server
 #
 def create_asrd(num=10000, top="html", host="", ssl=False):
   if type(num) == str: num = int(num)
