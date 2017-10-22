@@ -142,7 +142,6 @@ class JuliusWrap(threading.Thread):
             self.setupSubprocess()
 
             print "command line: %s" % " ".join(self._cmdline)
-            print self._cmdline
             self._p = subprocess.Popen(self._cmdline)
 
             self._running = True
