@@ -403,6 +403,10 @@ class SocketServer(SocketPort):
   def run(self):
     self.accept_service_loop()
 
+  def main_loop(self):
+    self.mainloop=True
+    self.accept_service_loop()
+
   #
   # 
   #
