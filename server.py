@@ -65,6 +65,7 @@ def main(num=10000, top="html", host="", ssl=False, make_thread=True):
 
   __srv=comm.SocketServer(reader, "JuliusServer", host, num, ssl)
   signal.signal(signal.SIGINT,  signalHandler)
+  signal.signal(signal.SIGTERM,  signalHandler)
   if make_thread :
     __srv.start()
   else:
