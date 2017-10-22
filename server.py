@@ -10,10 +10,11 @@
 
 ################################
 import sys
+import os
 import signal
 import comm
 import julius
-from daemonize import Daemonize
+from daemon import DaemonContext
 
 global __srv
 
@@ -26,9 +27,33 @@ def signalHandler(sig, handler):
    else:
      print "No service found"
    sys.exit()
-
 ######################################
-#  Julius Server
+
+def daemonize():
+  def fork():
+    pid = os.fork()
+    if pid > 0:
+      f = open('/var/run/julius_server.pid','w')
+      f.write(str(pid)+"\n")
+      f.close()
+      sys.exit()
+
+  def throw_away_io():
+    stdin = open(os.devnull, 'rb')
+    stdout = open(os.devnull, 'ab+')
+    stderr = open(os.devnull, 'ab+', 0)
+
+    for (null_io, std_io) in zip((stdin, stdout, stderr),
+                                 (sys.stdin, sys.stdout, sys.stderr)):
+      os.dup2(null_io.fileno(), std_io.fileno())
+
+  fork()
+  os.setsid()
+  fork()
+  throw_away_io() 
+
+###########################################################
+# Julius Server
 #
 def main(num=10000, top="html", host="", ssl=False, make_thread=True):
   global __srv
@@ -53,8 +78,6 @@ def main2(num=10000):
 #
 #
 if __name__ == '__main__' :
-  __srv=main2()
-  #dmn = Daemonize(app="Julius", pid='/tmp/julius.pid', action=main2)
-  #dmn.start() 
-  
-  
+  daemonize()
+  main2()
+
