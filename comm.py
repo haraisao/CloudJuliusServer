@@ -9,6 +9,7 @@
 #
 
 ################################
+from __future__ import print_function
 import sys
 import os
 import socket
@@ -610,7 +611,7 @@ class CommReader:
         pass
     except:
       self.logger.error( "ERR in checkBuffer")
-      print traceback.format_exc()
+      print(traceback.format_exc())
       self._buffer=""
       pass
 
@@ -626,7 +627,7 @@ class CommReader:
       self.logger.info( "No owner" )
 
     if flag:
-      #print "---close"
+      #print( "---close" )
       self.owner.close()
     return
   #
@@ -1217,7 +1218,7 @@ class WebSocketCommand(CommCommand):
         # call function...
         if not fragment :
           self.data = self.json_decode(self.data)
-          print self.data
+          print( self.data )
 
           if type(self.data) == dict :
             if  'Status' in self.data and self.data['Status'] == "Opening" :
@@ -1441,7 +1442,7 @@ class WebSocketCommand(CommCommand):
     return
 
   def hello(self, msg):
-    print msg
+    print( msg )
 
 #############################################
 #   SIGVerse
@@ -1486,7 +1487,7 @@ class ROS_BridgeManager:
       self.services.append( RosService(data['topic'], data['type'], self.commander) )
 
     else:
-      print "Invalid request"
+      print( "Invalid request" )
   #
   #
   def getPublisher(self, topic ):
@@ -1539,8 +1540,8 @@ class RosSubscriber:
     self.commander.sendDataFrame( rosmsg )
 
   def call(self, data ):
-    print "Sub:ROSMsg"
-    print data
+    print( "Sub:ROSMsg" )
+    print( data )
 
 ##########
 #
@@ -1556,8 +1557,8 @@ class RosPublisher:
     self.commander.sendDataFrame( rosmsg )
 
   def call(self, data ):
-    print "Pub:ROSMsg"
-    print data
+    print( "Pub:ROSMsg" )
+    print( data )
 
 ##########
 #
@@ -1573,8 +1574,8 @@ class RosService:
     self.commander.sendDataFrame( rosmsg )
 
   def call(self, data ):
-    print "Service:ROSMsg"
-    print data
+    print( "Service:ROSMsg" )
+    print( data )
 
 
 ######################################33

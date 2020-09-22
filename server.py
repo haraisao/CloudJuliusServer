@@ -9,6 +9,7 @@
 #
 
 ################################
+from __future__ import print_function
 import sys
 import os
 import signal
@@ -20,12 +21,12 @@ global __srv
 
 def signalHandler(sig, handler):
    global __srv
-   print "Call sig"
+   print( "Call sig")
 
    if __srv :
      __srv.terminate()
    else:
-     print "No service found"
+     print( "No service found" )
    sys.exit()
 ######################################
 
