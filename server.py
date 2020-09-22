@@ -13,7 +13,7 @@ import sys
 import os
 import signal
 import comm
-import julius
+import julius_wrap
 from daemon import DaemonContext
 
 global __srv
@@ -59,7 +59,7 @@ def main(num=10000, top="html", host="", ssl=False, make_thread=True):
   global __srv
   if type(num) == str: num = int(num)
   reader = comm.HttpReader(None, top)
-  reader.asr = julius.JuliusWrap()
+  reader.asr = julius_wrap.JuliusWrap()
   reader.asr.startJulius()
   reader.asr.start()
 
@@ -79,6 +79,7 @@ def main2(num=10000):
 #
 #
 if __name__ == '__main__' :
-  #daemonize()
+  if '-d' in sys.argv:
+     daemonize()
   main2()
 

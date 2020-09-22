@@ -33,6 +33,8 @@ from xml.dom.minidom import Document
 import json
 import ConfigParser
 
+import silence
+
 '''
 Dictation-kit
 main.jconf:
@@ -93,7 +95,8 @@ class JuliusWrap(threading.Thread):
 
     self._jcode = 'utf-8'
 
-    self._silence = getWavData('silence.wav')
+    #self._silence = getWavData('silence.wav')
+    self._silence = silence._wav_data_
     self._lock = threading.RLock()
 
     self._modulesocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -441,58 +444,6 @@ class JuliusWrap(threading.Thread):
   def setcallback(self, func):
     self._callbacks.append(func)
 
-
-  #
-  #
-  #
-  #  OnResult
-  #
-  def onResult(self, type, data):
-    if type == JuliusWrap.CB_DOCUMENT:
-      if data.input:
-        d=data.input
-        self._statusdata = str(d['status'])
-  
-      elif data.rejected:
-        d=data.rejected
-        self._statusdata = 'rejected'
-
-      elif data.recogout:
-        d = data.recogout
-        doc = Document()
-        listentext = doc.createElement("listenText")
-        doc.appendChild(listentext)
-        for s in d.findAll('shypo'):
-          hypo = doc.createElement("data")
-          score = 0
-          count = 0
-          text = []
-          for w in s.findAll('whypo'):
-            if not w['word'] or  w['word'][0] == '<':
-              continue
-            whypo = doc.createElement("word")
-            whypo.setAttribute("text", w['word'])
-            whypo.setAttribute("score", w['cm'])
-            hypo.appendChild(whypo)
-            text.append(w['word'])
-            score += float(w['cm'])
-            count += 1
-          if count == 0:
-            score = 0
-          else:
-            score = score / count
-          hypo.setAttribute("rank", s['rank'])
-          hypo.setAttribute("score", str(score))
-          hypo.setAttribute("likelihood", s['score'])
-          hypo.setAttribute("text", " ".join(text))
-          print( "#%s: %s (%s)" % (s['rank'], " ".join(text), str(score)) )
-          listentext.appendChild(hypo)
-        data = doc.toxml(encoding="utf-8")
-        self.pushOutput(data)
-
-    elif type == JuliusWrap.CB_LOGWAVE:
-      pass
-    #
   #
   #  OnResult
   #
@@ -578,10 +529,9 @@ class JuliusWrap(threading.Thread):
   #  request asr
   #
   def request_asr(self, data):
-    print( 'JuliusWrap: execute' )
     data = self._silence + data + self._silence
     self.write(data)
-    res = self.popOutput(31i)
+    res = self.popOutput(3)
     return res
 
 #
