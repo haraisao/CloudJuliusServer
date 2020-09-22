@@ -79,6 +79,6 @@ def main2(num=10000):
 #
 #
 if __name__ == '__main__' :
-  daemonize()
+  #daemonize()
   main2()
 
